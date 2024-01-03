@@ -4,10 +4,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
-from .objects import Experience, Education, Scraper, Interest, Accomplishment, Contact
+from .objects import Experience, Education, Scraper 
 import os
-from linkedin_scraper import selectors
 from time import sleep
+from typing import List
 
 
 class Person(Scraper):
@@ -29,20 +29,20 @@ class Person(Scraper):
         driver=None,
         get=True,
         scrape=True,
-        close_on_complete=True,
+        close_on_complete=False,
         time_to_wait_after_login=0,
         location=None,
     ):
-        self.linkedin_url = linkedin_url
-        self.name = name
-        self.location=location
-        self.about = about or []
-        self.experiences = experiences or []
-        self.educations = educations or []
-        self.interests = interests or []
-        self.accomplishments = accomplishments or []
-        self.also_viewed_urls = []
-        self.contacts = contacts or []
+        self.linkedin_url:str = linkedin_url
+        self.name:str = name
+        self.location: str = location
+        self.about: str = about or []
+        self.experiences: List[Experience] = experiences or []
+        self.educations: List[Education] = educations or []
+        # # # self.interests = interests or []
+        # # # self.accomplishments = accomplishments or []
+        # # self.also_viewed_urls = []
+        # self.contacts = contacts or []
 
         if driver is None:
             try:
@@ -160,11 +160,19 @@ class Person(Scraper):
                     work_times = outer_positions[1].find_element(By.TAG_NAME,"span").text
                     location = outer_positions[2].find_element(By.TAG_NAME,"span").text
 
+            print(work_times)
             times = work_times.split("·")[0].strip() if work_times else ""
             duration = work_times.split("·")[1].strip() if len(work_times.split("·")) > 1 else None
 
-            from_date = " ".join(times.split(" ")[:2]) if times else ""
-            to_date = " ".join(times.split(" ")[3:]) if times else ""
+            # from_date = " ".join(times.split(" ")[:2]) if times else ""
+            # to_date = " ".join(times.split(" ")[3:]) if times else ""
+            split_times = times.split("-")
+            if (len(split_times) == 2):
+                from_date = split_times[0]
+                to_date = split_times[1]
+            else:
+                from_date = None
+                to_date = times
 
             # if position_summary_text and len(position_summary_text.find_element(By.CLASS_NAME,"pvs-list").find_element(By.CLASS_NAME,"pvs-list").find_elements(By.XPATH,"li")) > 1:
             #     descriptions = position_summary_text.find_element(By.CLASS_NAME,"pvs-list").find_element(By.CLASS_NAME,"pvs-list").find_elements(By.XPATH,"li")
@@ -236,13 +244,24 @@ class Person(Scraper):
             if len(outer_positions) > 2:
                 times = outer_positions[2].find_element(By.TAG_NAME,"span").text
 
-                split_times = times.split(" ")
-                if len(split_times) == 5:
-                    from_date = " ".join(times.split(" ")[:2])
-                    to_date = " ".join(times.split(" ")[3:])
-                else:
+                split_times = times.split("-")
+                if (len(split_times) == 2):
                     from_date = split_times[0]
-                    to_date = split_times[2]
+                    to_date = split_times[1]
+                else:
+                    from_date = None
+                    to_date = times
+
+                # split_times = times.split(" ")
+                # if len(split_times) == 2:
+                #     from_date = ""
+                #     to_date = times
+                # elif len(split_times) == 5:
+                #     from_date = " ".join(times.split(" ")[:2])
+                #     to_date = " ".join(times.split(" ")[3:])
+                # else:
+                #     from_date = split_times[0]
+                #     to_date = split_times[2]
             else:
                 from_date = None
                 to_date = None
