@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from time import sleep
+import json
 
 from selenium.webdriver import Chrome
 
@@ -38,6 +39,25 @@ class Experience(Institution):
     position_title: str = None
     duration: str = None
     location: str = None
+    institution_name: str = None
+    linkedin_url: str = None
+
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
+
+    def print(self, file):
+        # print(self, file=file)
+        print(self.toJSON(), file=file)
+        # print("\nEXPERIENCE\n", file=file)
+        # print(f"\tinsitution_Name: \"{self.institution_name}\"", file=file)
+        # print(f"\tposition: \"{self.position_title}\"", file=file)
+        # print(f"\tlocation: \"{self.location}\"", file=file)
+        # print(f"\tfrom_date: \"{self.from_date}\"", file=file)
+        # print(f"\tto_date: \"{self.to_date}\"", file=file)
+        # print(f"\tduration: \"{self.duration}\"", file=file)
+        # print(f"\tdescription: \"{self.description}\"", file=file)
+        # print(f"\tlinkedIn_URL: \"{self.linkedin_url}\"", file=file)
 
 
 @dataclass
@@ -46,6 +66,23 @@ class Education(Institution):
     to_date: str = None
     description: str = None
     degree: str = None
+    institution_name: str = None
+    linkedin_url: str = None
+
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
+
+    def print(self, file):
+        # print(self, file=file)
+        print(self.toJSON(), file=file)
+        # print("\nEDUCATION", file=file)
+        # print(f"\tdegree: \"{self.degree}\"", file=file)
+        # print(f"\tinstitution_name: \"{self.institution_name}\"", file=file)
+        # print(f"\tfrom_date: \"{self.from_date}\"", file=file)
+        # print(f"\tto_date: \"{self.to_date}\"", file=file)
+        # print(f"\tdescription: \"{self.description}\"", file=file)
+        # print(f"\tlinkedIn_URL: \"{self.linkedin_url}\"", file=file)
 
 
 @dataclass
@@ -99,7 +136,6 @@ class Scraper:
             )
         )
 
-
     def is_signed_in(self):
         try:
             WebDriverWait(self.driver, self.WAIT_FOR_ELEMENT_TIMEOUT).until(
@@ -127,9 +163,9 @@ class Scraper:
             "window.scrollTo(0, document.body.scrollHeight);"
         )
 
-    def scroll_class_name_element_to_page_percent(self, class_name:str, page_percent:float):
+    def scroll_class_name_element_to_page_percent(self, class_name: str, page_percent: float):
         self.driver.execute_script(
-            f'elem = document.getElementsByClassName("{class_name}")[0]; elem.scrollTo(0, elem.scrollHeight*{str(page_percent)});'
+            f'elem = document.getElementsByClassName("{ class_name}")[0]; elem.scrollTo(0, elem.scrollHeight*{str(page_percent)});'
         )
 
     def __find_element_by_class_name__(self, class_name):
@@ -142,7 +178,7 @@ class Scraper:
 
     def __find_element_by_xpath__(self, tag_name):
         try:
-            self.driver.find_element(By.XPATH,tag_name)
+            self.driver.find_element(By.XPATH, tag_name)
             return True
         except:
             pass
@@ -150,7 +186,7 @@ class Scraper:
 
     def __find_enabled_element_by_xpath__(self, tag_name):
         try:
-            elem = self.driver.find_element(By.XPATH,tag_name)
+            elem = self.driver.find_element(By.XPATH, tag_name)
             return elem.is_enabled()
         except:
             pass
