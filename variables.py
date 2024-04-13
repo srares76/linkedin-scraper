@@ -6,6 +6,6 @@ load_dotenv()
 my_username = os.environ['LINKEDIN_USERNAME']
 my_password = os.environ['LINKEDIN_PASSWORD']
 
-file_name = 'output.txt' # file where the results will be saved
+file_name = 'output.json' # file where the results will be saved
 
 query = 'site:linkedin.com/in/ AND "Web" AND "Javascript"'

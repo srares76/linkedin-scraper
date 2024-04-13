@@ -17,24 +17,30 @@ password.send_keys(variables.my_password)  # password field
 log_in_button = driver.find_element(
     By.CSS_SELECTOR, '[type="submit"]')  # submit button
 log_in_button.click()  # click the submit button
-# sleep(10)
+sleep(10)
 
-# profiles = ['https://www.linkedin.com/in/rares-constantin-stefan',
-#             'https://www.linkedin.com/in/marius-avramescu-a4540337']
-profiles = ['https://www.linkedin.com/in/rares-constantin-stefan',
-            'https://www.linkedin.com/in/rares-constantin-stefan']
-# profiles = []
-# with open('students/2010.txt', 'r') as input_file:
-#     for line in input_file:
-#         profiles.append(line.strip())
+# profiles = ['https://www.linkedin.com/in/rares-constantin-stefan/']
+
+profiles = []
+with open('students/2010.txt', 'r') as input_file:
+    for line in input_file:
+        profiles.append(line.strip())
 
 with open(variables.file_name, 'w') as output_file:
+    print("[", file=output_file)
+    count = 1
     for profile in profiles:
-        print("beginning", profile)
+        close_on_complete = True if profile == profiles[-1] else False
+        print(f"Profile {count}/{len(profiles)}: {profile}")
         driver.get(profile)
-        print("parsing")
         sleep(1)
         print("Ready to create Person object")
-        person = Person(linkedin_url=profile, driver=driver, get=False)
+        person = Person(linkedin_url=profile, driver=driver,
+                        get=False, close_on_complete=close_on_complete)
         person.print(output_file)
-        print("parsed")
+        print("Done\n")
+        count += 1
+        if not close_on_complete:
+            print(",", file=output_file)
+
+    print("]", file=output_file)

@@ -154,6 +154,10 @@ class Person(Scraper):
             outer_positions = position_summary_details.find_element(
                 By.XPATH, "*").find_elements(By.XPATH, "*")
 
+            work_times = ""
+            position_title = ""
+            location = ""
+            company = ""
             if len(outer_positions) == 4:
                 position_title = outer_positions[0].find_element(
                     By.TAG_NAME, "span").text
@@ -211,6 +215,8 @@ class Person(Scraper):
         self.scroll_to_half()
         self.scroll_to_bottom()
         main_list = self.wait_for_element_to_load(name="pvs-list", base=main)
+        if (main_list is None):
+            return
         for position in main_list.find_elements(By.CLASS_NAME, "pvs-list__paged-list-item"):
             position = position.find_element(
                 By.CSS_SELECTOR, '[data-view-name="profile-component-entity"]'
@@ -241,7 +247,10 @@ class Person(Scraper):
                     By.TAG_NAME, "span").text
 
                 split_times = times.split(" ")
-                if len(split_times) == 5:
+                if len(split_times) == 1:
+                    from_date = split_times[0]
+                    to_date = split_times[0]
+                elif len(split_times) == 5:
                     from_date = " ".join(times.split(" ")[:2])
                     to_date = " ".join(times.split(" ")[3:])
                 else:
@@ -279,10 +288,9 @@ class Person(Scraper):
             about = None
         self.about = about
 
-    def scrape_logged_in(self, close_on_complete=True):
+    def scrape_logged_in(self, close_on_complete=False):
         driver = self.driver
-        print("here?????")
-        # duration = None
+        print("Beginning to parse")
 
         self.focus()
         self.wait(5)
@@ -291,11 +299,14 @@ class Person(Scraper):
         if self.name is None:
             self.get_name_and_location()
 
+        print("Got name and location")
+
         # open to work
         self.open_to_work = self.is_open_to_work()
 
         # get about
         self.get_about()
+        print("Got about")
 
         driver.execute_script(
             "window.scrollTo(0, Math.ceil(document.body.scrollHeight/2));")
@@ -304,13 +315,14 @@ class Person(Scraper):
 
         # get experience
         self.get_experiences()
+        print("Got experiences")
 
         # get education
         self.get_educations()
-
-        driver.get(self.linkedin_url)
+        print("Got educations")
 
         if close_on_complete:
+            print("Closing the driver")
             driver.quit()
 
     @property
