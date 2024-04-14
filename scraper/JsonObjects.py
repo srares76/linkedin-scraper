@@ -34,31 +34,42 @@ class EducationJson():
 class PersonJson():
     def __init__(self,
                  name,
+                 location,
+                 company_name,
                  linkedin_url,
                  job_title,
-                 company_name,
                  about,
-                 location,
                  experiences,
-                 educations
+                 educations,
+                 email = "",
+                 birthDay = "",
+                 phoneNumber ="",
+                 highscool = "",
+                 highscoolRegion = "",
+                 finalPaperName = "",
+                 graduationGrade = "",
+                 universityBachelors = "",
+                 facultyBachelors = "",
+                 bacYear = "",
+                 bachelorsFromYear = "",
                  ):
         self.Name = name
-        self.Email = ""
-        self.BirthDay = ""
-        self.PhoneNumber = ""
-        self.Highscool = ""
-        self.HighscoolRegion = ""
-        self.FinalPaperName = ""
-        self.GraduationGrade = ""
-        self.UniversityBachelors = ""
-        self.FacultyBachelors = ""
-        self.BacYear = ""
-        self.BachelorsFromYear = ""
+        self.Location = location
+        self.Email = email
+        self.BirthDay = birthDay
+        self.PhoneNumber = phoneNumber
+        self.Highscool = highscool
+        self.HighscoolRegion = highscoolRegion
+        self.FinalPaperName = finalPaperName
+        self.GraduationGrade = graduationGrade
+        self.UniversityBachelors = universityBachelors
+        self.FacultyBachelors = facultyBachelors
+        self.BacYear = bacYear
+        self.BachelorsFromYear = bachelorsFromYear
         self.LinkedInURL = linkedin_url
         self.JobTitle = job_title
         self.CompanyName = company_name
         self.About = about
-        self.Location = location
         self.Experiences = experiences
         self.Educations = educations
 

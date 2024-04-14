@@ -118,6 +118,7 @@ class Scraper:
         base = base or self.driver
         # treat case of no element found
         try:
+
             return WebDriverWait(base, self.WAIT_FOR_ELEMENT_TIMEOUT).until(
                 EC.presence_of_element_located(
                     (
@@ -128,7 +129,7 @@ class Scraper:
             )
 
             return base.find_element(by, name)
-        except Exception:
+        except Exception as e:
             pass
         return None
 
@@ -172,7 +173,7 @@ class Scraper:
 
     def scroll_class_name_element_to_page_percent(self, class_name: str, page_percent: float):
         self.driver.execute_script(
-            f'elem = document.getElementsByClassName("{ class_name}")[0]; elem.scrollTo(0, elem.scrollHeight*{str(page_percent)});'
+            f'elem = document.getElementsByClassName("{class_name}")[0]; elem.scrollTo(0, elem.scrollHeight*{str(page_percent)});'
         )
 
     def __find_element_by_class_name__(self, class_name):

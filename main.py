@@ -19,10 +19,8 @@ log_in_button = driver.find_element(
 log_in_button.click()  # click the submit button
 sleep(10)
 
-# profiles = ['https://www.linkedin.com/in/rares-constantin-stefan/']
-
 profiles = []
-with open('students/2010.txt', 'r') as input_file:
+with open(variables.input_file, 'r') as input_file:
     for line in input_file:
         profiles.append(line.strip())
 
@@ -30,13 +28,18 @@ with open(variables.file_name, 'w') as output_file:
     print("[", file=output_file)
     count = 1
     for profile in profiles:
+        if profile == "X":
+            print(f"Profile {count}/{len(profiles)}: {profile} - SKIPPED\n")
+            count += 1
+            continue
         close_on_complete = True if profile == profiles[-1] else False
         print(f"Profile {count}/{len(profiles)}: {profile}")
         driver.get(profile)
         sleep(1)
         print("Ready to create Person object")
         person = Person(linkedin_url=profile, driver=driver,
-                        get=False, close_on_complete=close_on_complete)
+                        get=False, close_on_complete=close_on_complete,
+                        idx=count-1)
         person.print(output_file)
         print("Done\n")
         count += 1
@@ -44,3 +47,4 @@ with open(variables.file_name, 'w') as output_file:
             print(",", file=output_file)
 
     print("]", file=output_file)
+

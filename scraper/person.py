@@ -9,8 +9,9 @@ import os
 from linkedin_scraper import selectors
 from time import sleep
 import json
+import pandas as pd
 from .JsonObjects import ExperienceJson, EducationJson, PersonJson
-
+from unidecode import unidecode
 
 class Person(Scraper):
     __TOP_CARD = "pv-top-card"
@@ -25,8 +26,6 @@ class Person(Scraper):
         educations=None,
         interests=None,
         accomplishments=None,
-        company=None,
-        job_title=None,
         contacts=None,
         driver=None,
         get=True,
@@ -34,6 +33,7 @@ class Person(Scraper):
         close_on_complete=True,
         time_to_wait_after_login=0,
         location=None,
+        idx=0,
     ):
         self.linkedin_url = linkedin_url
         self.name = name
@@ -45,6 +45,7 @@ class Person(Scraper):
         self.accomplishments = accomplishments or []
         self.also_viewed_urls = []
         self.contacts = contacts or []
+        self.idx = idx
 
         if driver is None:
             try:
@@ -80,8 +81,28 @@ class Person(Scraper):
             jsonEducations.append(EducationJson(education.institution_name, education.linkedin_url,
                                   education.from_date, education.to_date, education.description, education.degree))
 
-        jsonPerson = PersonJson(self.name, self.linkedin_url, self.job_title,
-                                self.company, self.about, self.location, jsonExperiences, jsonEducations)
+        sheet = pd.read_excel('./students/excel/studenti-date-personale-2010-2011.xls')
+        graduatesInfoRow = sheet.loc[self.idx]
+
+        print(graduatesInfoRow)
+        email = unidecode(str(graduatesInfoRow["Email"])) if graduatesInfoRow is not None else ""
+        phoneNumber = unidecode(str(graduatesInfoRow["Tel. mobil"])) if graduatesInfoRow is not None else ""
+        birthDay = unidecode(str(graduatesInfoRow["Data naşterii"])) if graduatesInfoRow is not None else ""
+        highscool = unidecode(str(graduatesInfoRow["Liceu"])) if graduatesInfoRow is not None else ""
+        finalPaperName = unidecode(str(graduatesInfoRow["Denumirea lucrării finale"])) if graduatesInfoRow is not None else ""
+        highscoolRegion = unidecode(str(graduatesInfoRow["Localitate liceu"])) if graduatesInfoRow is not None else ""
+        graduationGrade = unidecode(str(graduatesInfoRow["Medie gen. absolvire"])) if graduatesInfoRow is not None else ""
+        universityBachelors = unidecode(str(graduatesInfoRow["Univ Licenţă"])) if graduatesInfoRow is not None else ""
+        facultyBachelors = unidecode(str(graduatesInfoRow["Facultate Licenţă"])) if graduatesInfoRow is not None else ""
+        bacYear = unidecode(str(graduatesInfoRow["An BAC"])) if graduatesInfoRow is not None else ""
+        bachelorsFromYear = unidecode(str(graduatesInfoRow["An admitere licenta"])) if graduatesInfoRow is not None else ""
+
+
+        jsonPerson = PersonJson(self.name, self.location, self.company, self.linkedin_url,
+                                self.job_title, self.about,  jsonExperiences, jsonEducations,
+                                email, birthDay, phoneNumber, highscool, highscoolRegion,
+                                finalPaperName, graduationGrade, universityBachelors, facultyBachelors,
+                                bacYear, bachelorsFromYear)
 
         print(jsonPerson.toJSON(), file=file)
 
@@ -116,7 +137,7 @@ class Person(Scraper):
             )
             div = self.driver.find_element(By.CLASS_NAME, class_name)
             div.find_element(By.TAG_NAME, "button").click()
-        except Exception as e:
+        except Exception:
             pass
 
     def is_open_to_work(self):
@@ -273,12 +294,12 @@ class Person(Scraper):
             self.add_education(education)
 
     def get_name_and_location(self):
-        top_panels = self.driver.find_elements(
-            By.CLASS_NAME, "pv-text-details__left-panel")
-        if len(top_panels) != 2:
-            return
-        self.name = top_panels[0].find_elements(By.XPATH, "*")[0].text
-        self.location = top_panels[1].find_element(By.TAG_NAME, "span").text
+        name = self.driver.find_element(
+            By.CLASS_NAME, "text-heading-xlarge").text
+        location = self.driver.find_element(
+            By.XPATH, "//*[@id=\"profile-content\"]/div/div[2]/div/div/main/section[1]/div[2]/div[2]/div[2]/span[1]").text
+        self.name = name
+        self.location = unidecode(location)
 
     def get_about(self):
         try:
@@ -295,18 +316,17 @@ class Person(Scraper):
         self.focus()
         self.wait(5)
 
-        # get name and location
-        if self.name is None:
-            self.get_name_and_location()
-
-        print("Got name and location")
-
         # open to work
         self.open_to_work = self.is_open_to_work()
 
         # get about
         self.get_about()
         print("Got about")
+
+        # get name and location
+        if self.name is None:
+            self.get_name_and_location()
+        print("Got name and location")
 
         driver.execute_script(
             "window.scrollTo(0, Math.ceil(document.body.scrollHeight/2));")
